@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BaseAuditBot - Smart Contract Auditor</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>BaseAuditBot</h1>
+    <p class="subtitle">Smart Contract Security Auditor for Base Network</p>
+  </header>
+
+  <div class="container">
+    <!-- Monitor Status -->
+    <section class="status-bar" id="statusBar">
+      <div class="status-indicator">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">Loading...</span>
+      </div>
+      <div class="status-actions">
+        <button id="startBtn" onclick="controlMonitor('start')">Start</button>
+        <button id="stopBtn" onclick="controlMonitor('stop')">Stop</button>
+      </div>
+    </section>
+
+    <!-- On-Demand Audit -->
+    <section class="audit-form-section">
+      <h2>Audit Any Contract</h2>
+      <p class="form-description">Enter a Base contract address to scan for vulnerabilities</p>
+      <div class="audit-form">
+        <input
+          type="text"
+          id="contractAddress"
+          placeholder="0x..."
+          spellcheck="false"
+        />
+        <button id="auditBtn" onclick="auditContract()">Scan Contract</button>
+      </div>
+      <div id="auditFormStatus" class="form-status"></div>
+    </section>
+
+    <!-- Stats Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="totalContracts">-</div>
+        <div class="stat-label">Contracts Found</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalAudited">-</div>
+        <div class="stat-label">Audited</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalSkipped">-</div>
+        <div class="stat-label">Skipped (No Source)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="lastBlock">-</div>
+        <div class="stat-label">Last Block</div>
+      </div>
+    </section>
+
+    <!-- Findings Summary -->
+    <section class="findings-summary">
+      <h2>Findings Overview</h2>
+      <div class="findings-bars">
+        <div class="finding-row">
+          <span class="severity-badge critical">CRITICAL</span>
+          <span class="finding-count" id="criticalCount">0</span>
+        </div>
+        <div class="finding-row">
+          <span class="severity-badge high">HIGH</span>
+          <span class="finding-count" id="highCount">0</span>
+        </div>
+        <div class="finding-row">
+          <span class="severity-badge medium">MEDIUM</span>
+          <span class="finding-count" id="mediumCount">0</span>
+        </div>
+        <div class="finding-row">
+          <span class="severity-badge low">LOW</span>
+          <span class="finding-count" id="lowCount">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audit Table -->
+    <section class="audit-section">
+      <h2>Recent Audits</h2>
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Contract</th>
+            <th>Address</th>
+            <th>Risk</th>
+            <th>Findings</th>
+            <th>Source</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="auditTableBody">
+          <tr><td colspan="6" class="loading">Loading audits...</td></tr>
+        </tbody>
+      </table>
+      <div class="pagination" id="pagination"></div>
+    </section>
+
+    <!-- Audit Detail Modal -->
+    <div class="modal" id="auditModal">
+      <div class="modal-content">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div id="auditDetail"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>BaseAuditBot - Monitoring Base Network for smart contract vulnerabilities</p>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
