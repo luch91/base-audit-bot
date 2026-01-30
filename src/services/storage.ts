@@ -137,3 +137,29 @@ export function getStats(): DashboardStats {
     monitorState: getMonitorState(),
   };
 }
+
+// Get notable findings (critical and high severity)
+export function getNotableFindings(limit: number = 50): Array<{
+  audit: AuditReport;
+  finding: AuditReport['findings'][0];
+}> {
+  const allAudits = Array.from(auditsById.values());
+  const notable: Array<{ audit: AuditReport; finding: AuditReport['findings'][0] }> = [];
+
+  for (const audit of allAudits) {
+    for (const finding of audit.findings) {
+      if (finding.severity === 'critical' || finding.severity === 'high') {
+        notable.push({ audit, finding });
+      }
+    }
+  }
+
+  // Sort by severity (critical first), then by date (newest first)
+  notable.sort((a, b) => {
+    if (a.finding.severity === 'critical' && b.finding.severity !== 'critical') return -1;
+    if (a.finding.severity !== 'critical' && b.finding.severity === 'critical') return 1;
+    return b.audit.auditedAt - a.audit.auditedAt;
+  });
+
+  return notable.slice(0, limit);
+}

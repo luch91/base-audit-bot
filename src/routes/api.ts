@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getMonitorState, startMonitor, stopMonitor } from '../services/monitor';
-import { getAuditById, getAuditByAddress, listAudits, getStats, saveAudit } from '../services/storage';
+import { getAuditById, getAuditByAddress, listAudits, getStats, saveAudit, getNotableFindings } from '../services/storage';
 import { getContractSource } from '../services/basescan';
 import { analyzeContract } from '../services/analyzer';
 import { AppConfig } from '../types';
@@ -32,6 +32,32 @@ export function createApiRouter(config: AppConfig): Router {
   router.get('/stats', (_req, res) => {
     const stats = getStats();
     res.json(serializeBigInt(stats));
+  });
+
+  // Notable findings (critical and high severity)
+  router.get('/notable', (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
+    const notable = getNotableFindings(limit);
+
+    const formatted = notable.map(({ audit, finding }) => ({
+      contractAddress: audit.contractAddress,
+      contractName: audit.contractName,
+      auditId: audit.id,
+      auditedAt: audit.auditedAt,
+      finding: {
+        severity: finding.severity,
+        category: finding.category,
+        title: finding.title,
+        description: finding.description,
+        confidence: finding.confidence,
+        location: finding.location,
+      }
+    }));
+
+    res.json({
+      total: notable.length,
+      findings: serializeBigInt(formatted),
+    });
   });
 
   // List audits (paginated)

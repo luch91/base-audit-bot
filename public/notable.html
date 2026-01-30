@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notable Findings - BaseAuditBot</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .nav-bar {
+      background: #161b22;
+      border-bottom: 1px solid #21262d;
+      padding: 12px 24px;
+      display: flex;
+      gap: 24px;
+    }
+    .nav-bar a {
+      color: #8b949e;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+    .nav-bar a:hover {
+      color: #c9d1d9;
+      background: #21262d;
+    }
+    .nav-bar a.active {
+      color: #58a6ff;
+      background: rgba(88, 166, 255, 0.1);
+    }
+    .page-header {
+      margin-bottom: 24px;
+    }
+    .page-header h2 {
+      font-size: 22px;
+      color: #c9d1d9;
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      color: #8b949e;
+      font-size: 14px;
+    }
+    .notable-stats {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .notable-stat {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .notable-stat-number {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .notable-stat-number.critical { color: #f85149; }
+    .notable-stat-number.high { color: #d29922; }
+    .notable-stat-label {
+      font-size: 13px;
+      color: #8b949e;
+    }
+    .findings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .notable-finding-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 20px 24px;
+      transition: border-color 0.2s;
+    }
+    .notable-finding-card:hover {
+      border-color: #30363d;
+    }
+    .notable-finding-card.critical {
+      border-left: 3px solid #f85149;
+    }
+    .notable-finding-card.high {
+      border-left: 3px solid #d29922;
+    }
+    .finding-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .finding-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #c9d1d9;
+    }
+    .finding-contract {
+      font-size: 13px;
+      color: #8b949e;
+      margin-top: 4px;
+    }
+    .finding-contract a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    .finding-contract a:hover {
+      text-decoration: underline;
+    }
+    .finding-body {
+      font-size: 14px;
+      color: #8b949e;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .finding-footer {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: #484f58;
+    }
+    .finding-footer span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .confidence-bar {
+      width: 60px;
+      height: 4px;
+      background: #21262d;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .confidence-fill {
+      height: 100%;
+      background: #58a6ff;
+      border-radius: 2px;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8b949e;
+    }
+    .empty-state h3 {
+      font-size: 18px;
+      color: #c9d1d9;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BaseAuditBot</h1>
+    <p class="subtitle">Smart Contract Security Auditor for Base Network</p>
+  </header>
+
+  <nav class="nav-bar">
+    <a href="/">Dashboard</a>
+    <a href="/notable.html" class="active">Notable Findings</a>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h2>Notable Findings</h2>
+      <p>Critical and high severity vulnerabilities discovered across all audited contracts</p>
+    </div>
+
+    <div class="notable-stats">
+      <div class="notable-stat">
+        <span class="notable-stat-number critical" id="criticalTotal">-</span>
+        <span class="notable-stat-label">Critical Issues</span>
+      </div>
+      <div class="notable-stat">
+        <span class="notable-stat-number high" id="highTotal">-</span>
+        <span class="notable-stat-label">High Issues</span>
+      </div>
+    </div>
+
+    <section class="audit-section">
+      <div class="findings-list" id="findingsList">
+        <div class="loading">Loading notable findings...</div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>BaseAuditBot - Monitoring Base Network for smart contract vulnerabilities</p>
+  </footer>
+
+  <script>
+    async function loadNotableFindings() {
+      try {
+        const response = await fetch('/api/notable?limit=100');
+        const data = await response.json();
+
+        const criticalCount = data.findings.filter(f => f.finding.severity === 'critical').length;
+        const highCount = data.findings.filter(f => f.finding.severity === 'high').length;
+
+        document.getElementById('criticalTotal').textContent = criticalCount;
+        document.getElementById('highTotal').textContent = highCount;
+
+        const container = document.getElementById('findingsList');
+
+        if (data.findings.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <h3>No Notable Findings Yet</h3>
+              <p>When critical or high severity vulnerabilities are discovered, they will appear here.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = data.findings.map(item => {
+          const date = new Date(item.auditedAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          });
+          const confidencePercent = Math.round(item.finding.confidence * 100);
+
+          return `
+            <div class="notable-finding-card ${item.finding.severity}">
+              <div class="finding-header">
+                <div>
+                  <div class="finding-title">${escapeHtml(item.finding.title || item.finding.category)}</div>
+                  <div class="finding-contract">
+                    <strong>${escapeHtml(item.contractName)}</strong> &mdash;
+                    <a href="https://basescan.org/address/${item.contractAddress}" target="_blank">
+                      ${item.contractAddress.slice(0, 10)}...${item.contractAddress.slice(-8)}
+                    </a>
+                  </div>
+                </div>
+                <span class="severity-badge ${item.finding.severity}">${item.finding.severity.toUpperCase()}</span>
+              </div>
+              <div class="finding-body">
+                ${escapeHtml(item.finding.description)}
+              </div>
+              <div class="finding-footer">
+                <span>Category: ${escapeHtml(item.finding.category)}</span>
+                <span>
+                  Confidence: ${confidencePercent}%
+                  <span class="confidence-bar">
+                    <span class="confidence-fill" style="width: ${confidencePercent}%"></span>
+                  </span>
+                </span>
+                <span>Audited: ${date}</span>
+                ${item.finding.location ? `<span>Location: ${escapeHtml(item.finding.location)}</span>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error('Failed to load notable findings:', err);
+        document.getElementById('findingsList').innerHTML = `
+          <div class="empty-state">
+            <h3>Error Loading Findings</h3>
+            <p>Could not connect to the API. Please try again later.</p>
+          </div>
+        `;
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    loadNotableFindings();
+  </script>
+</body>
+</html>
