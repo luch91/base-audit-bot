@@ -11,6 +11,7 @@ AI-powered smart contract security auditor for Base Network. Automatically monit
 - **On-demand Scanning** - Audit any Base contract by entering its address
 - **AI-Powered Analysis** - Uses Groq (LLaMA 3.1 70B) or local Ollama for vulnerability detection
 - **Web Dashboard** - View audit results, statistics, and findings in a clean interface
+- **Notable Findings** - Dedicated page highlighting critical and high severity vulnerabilities
 - **REST API** - Integrate audits into your own applications
 
 ## Vulnerability Detection
@@ -94,6 +95,7 @@ Visit http://localhost:3001 to access the dashboard.
 |--------|----------|-------------|
 | GET | `/api/health` | Health check and monitor status |
 | GET | `/api/stats` | Dashboard statistics |
+| GET | `/api/notable` | Critical and high severity findings |
 | GET | `/api/audits` | List all audits (paginated) |
 | GET | `/api/audits/:id` | Get audit by ID |
 | GET | `/api/audits/address/:addr` | Get audit by contract address |
@@ -159,6 +161,7 @@ base-audit-bot/
 │       └── api.ts            # REST endpoints
 ├── public/
 │   ├── index.html            # Dashboard UI
+│   ├── notable.html          # Notable findings page
 │   ├── style.css             # Styles
 │   └── app.js                # Frontend logic
 └── data/                     # Audit storage (gitignored)
