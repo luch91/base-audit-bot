@@ -31,9 +31,15 @@ export async function getContractSource(
 
   try {
     const url = `${BASESCAN_API}?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`;
-    console.log(`[Basescan] Fetching: ${address} (API key: ${apiKey ? 'set' : 'NOT SET'})`);
+    console.log(`[Basescan] Fetching: ${address} (API key: ${apiKey ? apiKey.slice(0, 8) + '...' : 'NOT SET'})`);
 
-    const response = await fetch(url);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    console.log(`[Basescan] HTTP status: ${response.status}`);
     const data = await response.json() as BasescanResponse;
 
     console.log(`[Basescan] Response status: ${data.status}, message: ${data.message}`);
@@ -102,7 +108,11 @@ export async function getContractSource(
 
     return contractSource;
   } catch (err) {
-    console.error(`Basescan API error for ${address}:`, err);
+    if (err instanceof Error && err.name === 'AbortError') {
+      console.error(`[Basescan] Request timed out for ${address}`);
+    } else {
+      console.error(`[Basescan] API error for ${address}:`, err);
+    }
     return null;
   }
 }
