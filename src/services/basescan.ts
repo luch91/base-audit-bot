@@ -1,6 +1,7 @@
 import { ContractSource } from '../types';
 
-const BASESCAN_API = 'https://api.basescan.org/api';
+// Etherscan V2 API - unified endpoint for all chains
+const BASESCAN_API = 'https://api.etherscan.io/v2/api?chainid=8453';
 
 // Simple rate limiter: max 5 requests per second
 let lastRequestTime = 0;
@@ -32,7 +33,7 @@ export async function getContractSource(
   console.log(`[Basescan] Rate limit passed`);
 
   try {
-    const url = `${BASESCAN_API}?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`;
+    const url = `${BASESCAN_API}&module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`;
     console.log(`[Basescan] Fetching: ${address} (API key: ${apiKey ? apiKey.slice(0, 8) + '...' : 'NOT SET'})`);
 
     const controller = new AbortController();
