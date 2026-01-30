@@ -45,9 +45,9 @@ export async function getContractSource(
     const data = await response.json() as BasescanResponse;
 
     console.log(`[Basescan] Response status: ${data.status}, message: ${data.message}`);
+    console.log(`[Basescan] Full result:`, JSON.stringify(data.result).slice(0, 500));
 
     if (data.status !== '1' || !data.result?.[0]?.SourceCode) {
-      console.log(`[Basescan] No source found. Result:`, JSON.stringify(data.result?.[0] || {}).slice(0, 200));
       return null;
     }
 
