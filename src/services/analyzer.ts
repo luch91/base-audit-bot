@@ -55,10 +55,12 @@ async function analyzeWithGroq(
   prompt: string,
   config: AppConfig
 ): Promise<SolidityFinding[]> {
+  console.log(`[Groq] Starting analysis for ${contractName} (prompt length: ${prompt.length})`);
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 120000);
 
+    console.log(`[Groq] Sending request to Groq API...`);
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -78,9 +80,11 @@ async function analyzeWithGroq(
     });
 
     clearTimeout(timeout);
+    console.log(`[Groq] Response received, status: ${response.status}`);
 
     if (!response.ok) {
       const err = await response.text();
+      console.error(`[Groq] API error response: ${err}`);
       throw new Error(`Groq API error: ${response.status} - ${err}`);
     }
 
@@ -89,7 +93,7 @@ async function analyzeWithGroq(
     };
     const text = data.choices[0]?.message?.content || '';
 
-    console.log(`Groq response for ${contractName}:`, text.slice(0, 300));
+    console.log(`[Groq] Response for ${contractName} (${text.length} chars):`, text.slice(0, 300));
 
     return parseFindings(text, config.confidenceThreshold);
   } catch (err) {
