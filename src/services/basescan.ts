@@ -27,7 +27,9 @@ export async function getContractSource(
   address: string,
   apiKey: string
 ): Promise<ContractSource | null> {
+  console.log(`[Basescan] getContractSource called for ${address}`);
   await rateLimitWait();
+  console.log(`[Basescan] Rate limit passed`);
 
   try {
     const url = `${BASESCAN_API}?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`;
