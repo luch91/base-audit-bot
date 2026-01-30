@@ -47,10 +47,11 @@ export function createApiRouter(config: AppConfig): Router {
       finding: {
         severity: finding.severity,
         category: finding.category,
-        title: finding.title,
+        type: finding.type,
         description: finding.description,
+        suggestion: finding.suggestion,
         confidence: finding.confidence,
-        location: finding.location,
+        line: finding.line,
       }
     }));
 

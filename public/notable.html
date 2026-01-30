@@ -224,7 +224,7 @@
             <div class="notable-finding-card ${item.finding.severity}">
               <div class="finding-header">
                 <div>
-                  <div class="finding-title">${escapeHtml(item.finding.title || item.finding.category)}</div>
+                  <div class="finding-title">${escapeHtml(item.finding.type || item.finding.category)}</div>
                   <div class="finding-contract">
                     <strong>${escapeHtml(item.contractName)}</strong> &mdash;
                     <a href="https://basescan.org/address/${item.contractAddress}" target="_blank">
@@ -237,6 +237,7 @@
               <div class="finding-body">
                 ${escapeHtml(item.finding.description)}
               </div>
+              ${item.finding.suggestion ? `<div class="finding-suggestion">${escapeHtml(item.finding.suggestion)}</div>` : ''}
               <div class="finding-footer">
                 <span>Category: ${escapeHtml(item.finding.category)}</span>
                 <span>
@@ -246,7 +247,7 @@
                   </span>
                 </span>
                 <span>Audited: ${date}</span>
-                ${item.finding.location ? `<span>Location: ${escapeHtml(item.finding.location)}</span>` : ''}
+                ${item.finding.line ? `<span>Line: ${item.finding.line}</span>` : ''}
               </div>
             </div>
           `;
